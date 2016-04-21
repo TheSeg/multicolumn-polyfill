@@ -1,5 +1,5 @@
 /**
- * CSS3 multicolumn polyfill for list elements for IE7-9
+ * CSS3 multicolumn polyfill for list elements for IE
  * Distributes items evenly to floating elements (regardless of heights)
  *
  * usage example:
@@ -70,12 +70,6 @@
           listPaddingTop = $el.css('padding-top'),
           $children = $el.children(self.options.childSelector);
 
-        //IE 7 reduce margin by one to make floats fit
-        if($.browser.msie && parseInt($.browser.version, 10) == 7) {
-          listMarginLeft =  listMarginLeft && Math.abs(parseInt(listMarginLeft,10)) > 0 ? parseInt(listMarginLeft, 10) - 1 : listMarginLeft;
-          listMarginRight = listMarginRight && Math.abs(parseInt(listMarginRight,10)) > 0 ? parseInt(listMarginRight, 10) - 1 : listMarginRight;
-        }
-
         // calculate vars
         var perColumnItemCount  = Math.ceil( $children.length / columnCount ),
           containerWidth = $el.parent().outerWidth() - (parseInt(listPaddingLeft, 10) + parseInt(listPaddingRight,10)),
@@ -89,8 +83,9 @@
           columnWidth = Math.floor(columnWidth);
         }
 
+
         // define wrapper element
-        $wrapper = $('<div class="clearfix ' + self.options.wrapperClass + '"></div>')
+        var $wrapper = $('<div class="clearfix ' + self.options.wrapperClass + '"></div>')
           .css({
             'margin-left': listMarginLeft,
             'margin-right': listMarginRight,
@@ -108,12 +103,12 @@
         // fill each column with list elements
         for (var i = 0; i < columnCount; i++) {
           var columnMargin = i > 0 ? gapWidth : 0;
-          var $listItems = $children.clone();
+          var $listItems = $children.clone(true);
           var fromCount = parseInt((perColumnItemCount * i), 10);
           var toCount = parseInt((fromCount + perColumnItemCount), 10);
           $listItems = $listItems.slice(fromCount, toCount);
 
-          $list = $('<' + tagName + '/>')
+          var $list = $('<' + tagName + '/>')
             .css({
               'display': 'block',
               'float': 'left',
@@ -131,8 +126,11 @@
         //insert new element, remove old
         $el.after($lists).hide().addClass(self.options.hiddenClass);
 
-        //this seems to help IE7
-        $lists.css('display','none').css('display','block');
+        /* FIX if there are memory leaks: cleanup the
+         * cleanup element && eventhandlers
+         * Note: I this case you cannot get the element back  
+        $el.remove();
+         */
       });
     },
 
@@ -141,8 +139,8 @@
       $(window).on('orientationchange pageshow resize', self.waitForFinalEvent(function(e) {
         var _self = self;
         self.element.each(function() {
-          $el = $(this);
-          _self.destroy($el, _self.bind(_self.doColumns, $el, _self));
+          var $el = $(this);
+          _self.destroy($el, _self.bind(_self.doColumns, [$el], _self));
         });
       })).trigger('resize');
     },
@@ -167,9 +165,9 @@
       }
     },
 
-    bind : function(fn, arguments, scope) {
+    bind : function(fn, args, scope) {
       return function () {
-        fn.apply(scope, arguments);
+        fn.apply(scope, args);
       };
     }
 

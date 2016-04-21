@@ -1,6 +1,6 @@
 ## What is it?
 
-This imitates the CSS3 multicolumn effect for list items for IE7-9. Use it with Modernizr.
+This imitates the CSS3 multicolumn effect for list items for IE8-9. Use it with Modernizr.
 
 ## How does it work?
 - Gets all children of an element
@@ -14,3 +14,6 @@ This imitates the CSS3 multicolumn effect for list items for IE7-9. Use it with 
    $('.mycolumn-element').multicolumn();
  }
 ```
+
+### License
+This script is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
